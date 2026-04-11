@@ -57,7 +57,7 @@ def load_alpaca_dataset(split: str = "train", test_size: float = 0.1, seed: int 
     """
     load the alpaca dataset from HF and apply the prompt template.
     """
-    dataset = load_dataset("tatsu-lab/alpaca",split="train",token="Apna waala daal lode ")
+    dataset = load_dataset("tatsu-lab/alpaca",split="train",token="HUGGING FACE TOKEN ")
     dataset = dataset.map(format_alpaca_prompt)
 
     if split == "all":
