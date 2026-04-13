@@ -14,7 +14,7 @@ from transformers import DataCollatorForSeq2Seq
 device='cuda'
 
 tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
-tokenizer.pad_token=tokenizer.eos_token
+tokenizer.pad_token=tokenizer.eos_token#padding as end of sentence token
 model = GPT2LMHeadModel.from_pretrained('gpt2')
 model=model.to(device)
 
@@ -124,10 +124,10 @@ data_collator=DataCollatorForSeq2Seq(
     padding=True,
     label_pad_token_id=-100  
 )
-tokenized_train = train_data.map(tokenize_function, batched=True, remove_columns=["text", "instruction", "input", "output"])
-tokenized_test = test_data.map(tokenize_function, batched=True, remove_columns=["text", "instruction", "input", "output"])
+tokenized_train=train_data.map(tokenize_function,   batched=True,   remove_columns=["text", "instruction", "input", "output"])
+tokenized_test=test_data.map(tokenize_function,   batched=True,   remove_columns=["text", "instruction", "input", "output"])
 
-train_loader = DataLoader(
+train_loader=DataLoader(
     tokenized_train,
     batch_size=8,
     shuffle=True,
@@ -149,6 +149,7 @@ Harry Potter and the Sorcerer's Stone
 Reading Harry Potter and The Sorcerer's Stone is an enjoyable and enlightening experience. Not only is the story captivating, it also teaches us important lessons about friendship'''
 inputs = tokenizer(text, return_tensors="pt").to(device)
 outputs = model(
+    
     input_ids=inputs["input_ids"],
     
 )
@@ -171,7 +172,7 @@ scheduler=get_scheduler(
 )
 
 
-import os
+
 SAVE_DIR      = "./checkpoints"
 os.makedirs(SAVE_DIR, exist_ok=True)
 
@@ -182,14 +183,14 @@ for epoch in range(epochs):
 
   
     model.train()
-    total_train_loss = 0
+    total_train_loss=0
 
     for step, batch in enumerate(train_loader):
 
         
-        input_ids  = batch["input_ids"].to(device)
-        attention_mask = batch["attention_mask"].to(device)
-        labels = batch["labels"].to(device)
+        input_ids=batch["input_ids"].to(device)
+        attention_mask=batch["attention_mask"].to(device)
+        labels=batch["labels"].to(device)
 
        
         outputs = model(
@@ -197,7 +198,7 @@ for epoch in range(epochs):
             attention_mask=attention_mask,
             labels=labels
         )
-        loss = outputs.loss
+        loss=outputs.loss
 
         
         optimizer.zero_grad()   
@@ -208,46 +209,48 @@ for epoch in range(epochs):
         optimizer.step()   
         scheduler.step()    
 
-        total_train_loss += loss.item()
+        total_train_loss+=loss.item()
 
-        # Log every 50 steps
+       
         current_lr = optimizer.param_groups[0]['lr']
-        if step % 50 == 0:
+        if step%50 == 0:
          print(f"Epoch {epoch+1} | Step {step} | Loss: {loss.item():.4f} |LR: {current_lr:.8f}")
 
-    avg_train_loss=total_train_loss / len(train_loader)
-    train_loss.append(avg_train_loss)
+    avg_trainloss=total_train_loss/len(train_loader)
+    train_loss.append(avg_trainloss)
 
    
     model.eval()
     total_val_loss = 0
 
-    with torch.no_grad():  # no gradients needed for validation
+    with torch.no_grad():  
         for batch in val_loader:
-            input_ids  = batch["input_ids"].to(device)
-            attention_mask = batch["attention_mask"].to(device)
+            
+            input_ids=batch["input_ids"].to(device)
+            attention_mask=batch["attention_mask"].to(device)
             labels= batch["labels"].to(device)
 
             outputs = model(
+                
                 input_ids=input_ids,
                 attention_mask=attention_mask,
                 labels=labels
             )
-            total_val_loss+= outputs.loss.item()
+            total_val_loss+=outputs.loss.item()
 
-    avg_val_loss = total_val_loss/len(val_loader)
-    val_loss.append(avg_val_loss)
+    avg_valloss=total_val_loss/len(val_loader)
+    val_loss.append(avg_valloss)
 
-    print(f"\n── Epoch {epoch+1} Summary ──")
-    print(f"Train Loss: {avg_train_loss:.4f}")
-    print(f"Val Loss:   {avg_val_loss:.4f}\n")
-    print(f"Learning_rate: {lr}")
+    
+    print(f"Train Loss:{avg_trainloss:.4f}")
+    print(f"Val Loss:{avg_valloss:.4f}\n")
+    print(f"Learning_rate:{lr}")
 
-    # Save checkpoint every epoch
+   
     checkpoint_path = os.path.join(SAVE_DIR, f"epoch_{epoch+1}")
     model.save_pretrained(checkpoint_path)
     tokenizer.save_pretrained(checkpoint_path)
-    print(f"Checkpoint saved → {checkpoint_path}")
+    print(f"Checkpoint saved→{checkpoint_path}")
 fig,ax=plt.subplots(figsize=(12,6))
 ax.plot(train_loss,label="training loss")
 ax.plot(val_loss,label="validation loss")
@@ -257,7 +260,7 @@ plt.show()
 print("Saved as loss_curve.png")
 
 
-
+#saving checkpoints per epochs
 os.makedirs('gpt2_alpaca_checkpoint', exist_ok=True)
 model.save_pretrained('gpt2_alpaca_checkpoint')
 tokenizer.save_pretrained('gpt2_alpaca_checkpoint')
