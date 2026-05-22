@@ -51,7 +51,7 @@ download_dataset()
 txt = load_dataset()
 #tokenizer --word based
 pattern = r'[\s,.!\n:"?;]|\'s|\'d|--'# cleaned my tokens earlier i just used word based
-parts = re.split(pattern,txt) #but the dataset contained many similar panuations
+parts = re.split(pattern,txt) #but the dataset contained many similar punctuation
 words=(sorted(list(set(parts))))
 vocab=len(words)#vocab_size form 25670 to 14197
 wtoi={w:i for i,w in enumerate(words)}
@@ -113,7 +113,7 @@ class MultiHeads(nn.Module):
     self.heads=nn.ModuleList([Head(head_size) for number in range(num_heads)])
     self.l1=nn.Linear(64,n_embed)
   def forward(self,x):
-    info=torch.cat([hd(x)for hd in self.heads],dim=-1)#shape-->()
+    info=torch.cat([hd(x)for hd in self.heads],dim=-1)
     result=self.l1(info)
     return result
 
